@@ -12,10 +12,6 @@ def weather(message):
     msg = my_bot.send_message(message.chat.id, 'Введите город:')
     my_bot.register_next_step_handler(msg, input_gorod)
 
-# @my_bot.message_handler(command=['translate'])
-# def translate(message):
-#     my_bot.send_message(message.chat.id, 'Введите язык, на который вы хотите перевести текст:', input_language)
-
 @my_bot.message_handler(commands=['start'])
 def start(message):
     markup = types.ReplyKeyboardMarkup(row_width=1)
@@ -73,23 +69,38 @@ def input_gorod(message):
 
 @my_bot.message_handler(command=['translate'])
 def translate(message):
-    my_bot.send_message(message.chat.id, 'Введите язык, на который хотите перевести:', parse_mode='html')
+    msg = my_bot.send_message(message.chat.id, 'Введите язык, на который хотите перевести:', parse_mode='html')
+    my_bot.register_next_step_handler(msg, input_1)
+
+def input_1(message):
+    str1 = message.text
+    msg = my_bot.send_message(message.chat.id, 'Введите язык, c которого хотите перевести:', parse_mode='html')
+    my_bot.register_next_step_handler(msg, input_2, str1)
+
+def input_2(message, str1):
+    str2 = message.text
     translator = Translator()
-    name_trans = translator.translate(message, dest='en', src='ru')
-    my_bot.send_message(message.chat.id, 'Введите язык, с которого будет производиться перевод:')
-    name_trans = name_trans.text.lower()
-    name = translator.translate(message, dest='en', src='ru')
-    name = name.text.lower()
+    str1 = translator.translate(str1, dest='en', src='ru')
+    str1 = str1.text.lower()
+    str2 = translator.translate(str2, dest='en', src='ru')
+    str2 = str2.text.lower()
     languages = googletrans.LANGUAGES
     for k, v in languages.items():
-        if name in v:
-            name = k
+        if str2 in v:
+            str2 = k
             break
     for k, v in languages.items():
-        if name_trans in v:
-            name_trans = k
+        if str1 in v:
+            str1 = k
             break
-    end_text = translator.translate(message, dest=f'{name_trans}', src=f'{name}')
+
+    msg = my_bot.send_message(message.chat.id, 'Введите предложения для перевода:', parse_mode='html')
+    my_bot.register_next_step_handler(msg, input_3, str1, str2)
+
+
+def input_3(message, str1, str2):
+    translator = Translator()
+    end_text = translator.translate(message.text, dest=f'{str1}', src=f'{str2}')
     end_text = end_text.text
     my_bot.send_message(message.chat.id, end_text, parse_mode='html')
 
