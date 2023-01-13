@@ -126,8 +126,8 @@ def input_3(message, str1, str2):
     end_text = end_text.text
     my_bot.send_message(message.chat.id, end_text, parse_mode='html')
     menu(message)
-str = 'сука, шлюха, блять, нахуй, пидор, kurwa, pierdol'
-arr = str.split(', ')
+
+
 @my_bot.message_handler(content_types=['text'])
 def get_user_text(message):
     if message.text.lower() == 'погода':
@@ -136,9 +136,6 @@ def get_user_text(message):
         start(message)
     if message.text.lower() == 'переводчик':
         translate(message)
-    for i in range(len(arr)):
-        if arr[i] in message.text.lower():
-            my_bot.send_message(message.chat.id, 'Не матерись!')
-            break
+
 
 my_bot.polling(none_stop=True)
