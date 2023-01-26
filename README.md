@@ -1,8 +1,9 @@
-# Описание проекта
+# Описание проекта `(project description)`
+# Русский
 Этот проект создаёт телеграмм бота, который выводит вам погоду через сайт world-weather.ru и переводит.
-
+# English
 This project creates a telegram bot that displays the weather for you through the world-weather.ru website and translates it.
-# Установка библиотек (install libraries)
+# Установка библиотек `(install libraries)`
 `pip install pytelegrambotapi`
 
 `pip install beautifulsoup4`
