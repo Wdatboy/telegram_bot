@@ -12,30 +12,6 @@ def weather(message):
     msg = my_bot.send_message(message.chat.id, 'Введите город:')
     my_bot.register_next_step_handler(msg, input_gorod)
 
-@my_bot.message_handler(commands=['menu'])
-def menu(message):
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    item1 = types.KeyboardButton('Обновить бота')
-    item2 = types.KeyboardButton('Погода')
-    item3 = types.KeyboardButton('Переводчик')
-    markup.add(item1, item2, item3)
-    my_bot.send_message(message.chat.id, 'Выберете кнопку', reply_markup=markup)
-
-@my_bot.message_handler(commands=['start'])
-def start(message):
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    item1 = types.KeyboardButton('Обновить бота')
-    item2 = types.KeyboardButton('Погода')
-    item3 = types.KeyboardButton('Переводчик')
-    markup.add(item1, item2, item3)
-    if message.from_user.username == None or message.from_user.last_name == None:
-        my_bot.send_message(message.chat.id, f"Привет, <b> {message.from_user.first_name} </b> !", parse_mode="html")
-    elif message.from_user.first_name == None or message.from_user.last_name == None:
-        my_bot.send_message(message.chat.id, f"Привет, <b> {message.from_user.username} </b> !", parse_mode="html")
-    else:
-        my_bot.send_message(message.chat.id, f"Привет, <b> {message.from_user.last_name} </b> !", parse_mode="html")
-    my_bot.send_message(message.chat.id, 'Выберете кнопку', reply_markup=markup)
-
 
 def input_gorod(message):
     x = message.text
@@ -63,7 +39,16 @@ def input_gorod(message):
     elif "'" in end_text:
         end_text = end_text.replace("'", '')
 
-    req = requests.get(f'http://world-weather.ru/pogoda/russia/{end_text}')
+
+    proxies = {
+        "https": "https://167.172.148.49:443",
+        "http": "http://167.172.148.49:443",
+    }
+
+    print(end_text)
+    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0;)'}
+
+    req = requests.get(f'http://www.world-weather.ru/pogoda/russia/{end_text}', headers=headers)
     html = BS(req.content, 'html.parser')
     if req.status_code == 200:
         if html.find('div', attrs={'id': 'weather-now-number'}):
@@ -78,22 +63,49 @@ def input_gorod(message):
     else:
         menu(message)
 
+
+@my_bot.message_handler(commands=['menu'])
+def menu(message):
+    markup = types.ReplyKeyboardMarkup(row_width=1)
+    item1 = types.KeyboardButton('Обновить бота')
+    item2 = types.KeyboardButton('Погода')
+    item3 = types.KeyboardButton('Переводчик')
+    markup.add(item1, item2, item3)
+    my_bot.send_message(message.chat.id, 'Выберете кнопку', reply_markup=markup)
+
+@my_bot.message_handler(commands=['start'])
+def start(message):
+    markup = types.ReplyKeyboardMarkup(row_width=1)
+    item1 = types.KeyboardButton('Обновить бота')
+    item2 = types.KeyboardButton('Погода')
+    item3 = types.KeyboardButton('Переводчик')
+    markup.add(item1, item2, item3)
+    if message.from_user.username == None or message.from_user.last_name == None:
+        my_bot.send_message(message.chat.id, f"Привет, <b> {message.from_user.first_name} </b> !", parse_mode="html")
+    elif message.from_user.first_name == None or message.from_user.last_name == None:
+        my_bot.send_message(message.chat.id, f"Привет, <b> {message.from_user.username} </b> !", parse_mode="html")
+    else:
+        my_bot.send_message(message.chat.id, f"Привет, <b> {message.from_user.last_name} </b> !", parse_mode="html")
+    my_bot.send_message(message.chat.id, 'Выберете кнопку', reply_markup=markup)
+
+
+
 @my_bot.message_handler(command=['translate'])
 def translate(message):
     markup = types.ReplyKeyboardMarkup(row_width=1)
-    item1 = types.KeyboardButton('Русский')
-    item2 = types.KeyboardButton('Английский')
-    item3 = types.KeyboardButton('Немецкий')
-    item4 = types.KeyboardButton('Французский')
-    item5 = types.KeyboardButton('Испанский')
+    item1 = types.KeyboardButton('Русский🇷🇺')
+    item2 = types.KeyboardButton('Английский🇬🇧')
+    item3 = types.KeyboardButton('Немецкий🇩🇪')
+    item4 = types.KeyboardButton('Французский🇫🇷')
+    item5 = types.KeyboardButton('Испанский🇪🇸')
     markup.add(item1, item2, item3, item4, item5)
-    msg = my_bot.send_message(message.chat.id, 'Введите кнопку или введите язык, на который:', parse_mode='html', reply_markup=markup)
+    msg = my_bot.send_message(message.chat.id, 'Нажмите кнопку, на который хотите перести:', parse_mode='html', reply_markup=markup)
     my_bot.register_next_step_handler(msg, input_1)
 
 def input_1(message):
-    str1 = message.text
+    str1 = message.text[:-2]
     if str1 == 'Русский' or str1 == 'Английский' or str1 == 'Немецкий' or str1 == 'Французский' or str1 == 'Испанский':
-        msg = my_bot.send_message(message.chat.id, 'Введите язык, c которого хотите перевести:', parse_mode='html')
+        msg = my_bot.send_message(message.chat.id, 'Нажмите на кнопку, c которого хотите перевести:', parse_mode='html')
         my_bot.register_next_step_handler(msg, input_2, str1)
     else:
         my_bot.send_message(message.chat.id, 'Я не знаю такого языка!')
@@ -101,9 +113,9 @@ def input_1(message):
 
 
 def input_2(message, str1):
-    str2 = message.text
+    str2 = message.text[:-2]
     if str2 == 'Русский' or str2 == 'Английский'  or str2 == 'Немецкий' or str2 == 'Французский' or str2 == 'Испанский':
-        msg = my_bot.send_message(message.chat.id, 'Введите предложение для перевода:', parse_mode='html')
+        msg = my_bot.send_message(message.chat.id, 'Текст:', parse_mode='html')
         translator = Translator()
         str1 = translator.translate(str1, dest='en', src='ru')
         str1 = str1.text
