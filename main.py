@@ -45,7 +45,6 @@ def input_gorod(message):
         "http": "http://167.172.148.49:443",
     }
 
-    print(end_text)
     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0;)'}
 
     req = requests.get(f'http://www.world-weather.ru/pogoda/russia/{end_text}', headers=headers)
